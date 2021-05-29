@@ -1,10 +1,13 @@
 #0 빈칸, 1 하양, 2 검정
+
+#유효한 색상인지 확인 //작업 끝
 def color_check(color):
     if color == 1 or color == 2:
         return True
     else:
         return False
 
+#board 생성 //작업 끝
 def make_base():
     board = [[0 for _ in range(8)] for _ in range(8)]
     board[3][3] = 1
@@ -13,6 +16,7 @@ def make_base():
     board[4][3] = 2
     return board
 
+#board 출력 //현 상태에서는 작업 끝. 추후 수정이 필요하면 수정 예정
 def print_board(board):
     C_GREEN  = "\033[32m"
     C_BLACK  = "\033[30m"
@@ -30,6 +34,7 @@ def print_board(board):
         print(C_BGBLACK + C_WHITE)
     return
 
+#color 돌을 놓을 수 있는 위치 반환 //작업 끝. 테스트 필요
 def available_list(color, board):
     if not color_check(color): return [] #유효하지 않은 색상 체크
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
@@ -38,7 +43,7 @@ def available_list(color, board):
     for i in range(8): #모든 좌표에 대해 반복문
         for j in range(8):
             if board[i][j] != color: continue #색 체크
-            for k in range(8):
+            for k in range(8): #상하좌우 대각선에 대한 체크
                 x, y = i, j
                 cnt = 0
                 while True:
@@ -49,11 +54,12 @@ def available_list(color, board):
                     elif board[x][y] == 0: #빈칸인지 체크
                         if cnt == 0: break #사이에 다른색 돌이 없으면 추가 x
                         else: #있으면 빈칸의 좌표 추가
-                            l.append([x, y, cnt])
+                            l.append([[i,j],[x, y]]) #시작 좌표, 놓는 돌의 좌표
                             break
                     else: cnt += 1 #사이에 다른색 돌 개수 + 1
     return l
 
+#color 색의 돌 개수 반환 //작업 끝
 def get_score(color, board):
     if not color_check(color): return 0
     cnt = 0
@@ -61,6 +67,27 @@ def get_score(color, board):
         for j in i:
             if j == color: cnt += 1
     return cnt
+
+#(x,y)위치에 color색 돌을 놓을 수 있는지 확인 //작업 끝. 테스트 필요
+def check_place(color, board, x, y):
+    if not color_check(color): return False #유효한 색인지 확인
+    if x >= 8 or x < 0 or y >= 8 or y < 0: return False #위치가 범위를 벗어나는지 확인
+    if board[x][y] != 0: return False #칸이 비어있는지 확인
+    dx = [0, 0, -1, 1, -1, -1, 1, 1]
+    dy = [-1, 1, 0, 0, -1, 1, -1, 1]
+    for i in range(8):
+        ddx, ddy = x, y
+        cnt = 0
+        while True:
+            if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
+            ddx += dx[i]
+            ddy == dy[i]
+            if board[ddx][ddy] == 0: break
+            elif board[ddx][ddy] != color: cnt += 1
+            else:
+                if cnt == 0: break
+                else: return True
+    return False
 
 b = make_base()
 print_board(b)
