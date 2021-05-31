@@ -1,3 +1,5 @@
+import random
+
 #0 빈칸, 1 하양, 2 검정
 
 #유효한 색상인지 확인 //작업 끝
@@ -31,6 +33,23 @@ def print_board(board):
                 print(C_BGGREEN + C_WHITE + " ● ", end = "")
             if j == 2:
                 print(C_BGGREEN + C_BLACK + " ● ", end = "")
+        print(C_BGBLACK + C_WHITE)
+    return
+
+def print_board_debug(board):
+    C_GREEN  = "\033[32m"
+    C_BLACK  = "\033[30m"
+    C_WHITE  = "\033[37m"
+    C_BGGREEN  = "\033[42m"
+    C_BGBLACK  = "\033[40m"
+    for i in range(8):
+        for j in range(8):
+            if board[i][j] == 0:
+                print(C_BGBLACK + C_WHITE + " ", i,".",j," ", end = "", sep="")
+            if board[i][j] == 1:
+                print(C_BGGREEN + C_WHITE + " ", i,".",j," ", end = "", sep="")
+            if board[i][j] == 2:
+                print(C_BGGREEN + C_BLACK + " ", i,".",j," ", end = "", sep="")
         print(C_BGBLACK + C_WHITE)
     return
 
@@ -81,7 +100,7 @@ def check_place(color, board, x, y):
         while True:
             if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
             ddx += dx[i]
-            ddy == dy[i]
+            ddy += dy[i]
             if board[ddx][ddy] == 0: break
             elif board[ddx][ddy] != color: cnt += 1
             else:
@@ -89,25 +108,30 @@ def check_place(color, board, x, y):
                 else: return True
     return False
 
-#(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 테스트 필요
+#(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 버그있음
 def let_stone(color, board, x, y):
-    if not check_place(color, board, x, y): return board
+    if not check_place(color, board, x, y):
+        print("ASD")
+        return board
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
+    board[x][y] = color
+    print("Put ", x,y, " -> ", color)
     for i in range(8):
         ddx, ddy = x, y
         cnt = 0
         while True:
             if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
             ddx += dx[i]
-            ddy == dy[i]
+            ddy += dy[i]
             if board[ddx][ddy] == 0: break
-            if board[ddx][ddy] == color:
-                for j in range(cnt):
+            elif board[ddx][ddy] == color:
+                for _ in range(cnt):
                     dddx, dddy = x, y
                     dddx += dx[i]
                     dddy += dy[i]
                     board[dddx][dddy] = color
+                    print(dddx,dddy, " -> ", color)
             elif board[ddx][ddy] != color: cnt += 1
     return board
 
@@ -118,14 +142,32 @@ def is_end(board):
     if len(black_list) == 0 and len(white_list) == 0: return True
     else: return False
 
-#오델로 게임
+#오델로 게임 //테스트용
 def inGame():
     user_input = "" #사용자 입력 저장용
     black_list = list() #검은색이 놓을 수 있는 경우의 수
     white_list = list() #하얀색이 놓을 수 있는 경우의 수
-    while True:
-        break
+    board = make_base()
+    while not is_end(board):
+        black_list = available_list(2, board)
+        if len(black_list) != 0:
+            choose = black_list[random.randint(0, len(black_list) - 1)]
+            choose = choose[1]
+            board = let_stone(2, board, choose[0], choose[1])
+        print_board_debug(board)
+        print()
+        white_list = available_list(1, board)
+        if len(white_list) != 0:
+            choose = white_list[random.randint(0, len(white_list) - 1)]
+            choose = choose[1]
+            board = let_stone(1, board, choose[0], choose[1])
+        print_board_debug(board)
+        print()
+    black_score = get_score(2, board)
+    white_score = get_score(1, board)
+    print(black_score, white_score)
+    if black_score == white_score: print("DRAW!")
+    elif black_score < white_score: print("WHITE WIN")
+    else: print("BLACK WIN")
 
-b = make_base()
-print_board(b)
-print(available_list(1, b))
+inGame()
