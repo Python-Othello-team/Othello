@@ -91,7 +91,7 @@ def check_place(color, board, x, y):
 
 #(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 테스트 필요
 def let_stone(color, board, x, y):
-    if check_place(color, board, x, y): return board
+    if not check_place(color, board, x, y): return board
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
     for i in range(8):
