@@ -116,7 +116,7 @@ def let_stone(color, board, x, y):
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
     board[x][y] = color
-    print("Put ", x,y, " -> ", color)
+    print("Put ", x,".",y, " -> ", color, sep="")
     for i in range(8):
         ddx, ddy = x, y
         cnt = 0
@@ -126,12 +126,12 @@ def let_stone(color, board, x, y):
             ddy += dy[i]
             if board[ddx][ddy] == 0: break
             elif board[ddx][ddy] == color:
+                dddx, dddy = x, y
                 for _ in range(cnt):
-                    dddx, dddy = x, y
                     dddx += dx[i]
                     dddy += dy[i]
                     board[dddx][dddy] = color
-                    print(dddx,dddy, " -> ", color)
+                    print(dddx,".",dddy, " -> ", color, sep="")
             elif board[ddx][ddy] != color: cnt += 1
     return board
 
