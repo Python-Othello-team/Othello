@@ -89,6 +89,43 @@ def check_place(color, board, x, y):
                 else: return True
     return False
 
+#(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 테스트 필요
+def let_stone(color, board, x, y):
+    if check_place(color, board, x, y): return board
+    dx = [0, 0, -1, 1, -1, -1, 1, 1]
+    dy = [-1, 1, 0, 0, -1, 1, -1, 1]
+    for i in range(8):
+        ddx, ddy = x, y
+        cnt = 0
+        while True:
+            if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
+            ddx += dx[i]
+            ddy == dy[i]
+            if board[ddx][ddy] == 0: break
+            if board[ddx][ddy] == color:
+                for j in range(cnt):
+                    dddx, dddy = x, y
+                    dddx += dx[i]
+                    dddy += dy[i]
+                    board[dddx][dddy] = color
+            elif board[ddx][ddy] != color: cnt += 1
+    return board
+
+#게임 종료 확인 //작업끝, 테스트 필요
+def is_end(board):
+    black_list = available_list(1, board)
+    white_list = available_list(2, board)
+    if len(black_list) == 0 and len(white_list) == 0: return True
+    else: return False
+
+#오델로 게임
+def inGame():
+    user_input = "" #사용자 입력 저장용
+    black_list = list() #검은색이 놓을 수 있는 경우의 수
+    white_list = list() #하얀색이 놓을 수 있는 경우의 수
+    while True:
+        break
+
 b = make_base()
 print_board(b)
 print(available_list(1, b))
