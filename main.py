@@ -45,12 +45,21 @@ def print_board_debug(board):
     for i in range(8):
         for j in range(8):
             if board[i][j] == 0:
+                print(" ", i,".",j," ", end = "", sep="")
+            if board[i][j] == 1:
+                print(" ", i,".",j,"W", end = "", sep="")
+            if board[i][j] == 2:
+                print(" ", i,".",j,"B", end = "", sep="")
+        print()
+        """
+            if board[i][j] == 0:
                 print(C_BGBLACK + C_WHITE + " ", i,".",j," ", end = "", sep="")
             if board[i][j] == 1:
                 print(C_BGGREEN + C_WHITE + " ", i,".",j," ", end = "", sep="")
             if board[i][j] == 2:
                 print(C_BGGREEN + C_BLACK + " ", i,".",j," ", end = "", sep="")
         print(C_BGBLACK + C_WHITE)
+        """
     return
 
 #color 돌을 놓을 수 있는 위치 반환 //작업 끝. 테스트 필요
