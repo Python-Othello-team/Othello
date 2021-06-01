@@ -42,15 +42,21 @@ def print_board_debug(board):
     C_WHITE  = "\033[37m"
     C_BGGREEN  = "\033[42m"
     C_BGBLACK  = "\033[40m"
+    f = open("Log.txt", 'a')
+    
     for i in range(8):
         for j in range(8):
             if board[i][j] == 0:
+                f.write(" " + str(i) + "." + str(j) + " ")
                 print(" ", i,".",j," ", end = "", sep="")
             if board[i][j] == 1:
+                f.write(" " + str(i) + "." + str(j) + "W")
                 print(" ", i,".",j,"W", end = "", sep="")
             if board[i][j] == 2:
+                f.write(" " + str(i) + "." + str(j) + "B")
                 print(" ", i,".",j,"B", end = "", sep="")
         print()
+        f.write('\n')
         """
             if board[i][j] == 0:
                 print(C_BGBLACK + C_WHITE + " ", i,".",j," ", end = "", sep="")
@@ -60,6 +66,9 @@ def print_board_debug(board):
                 print(C_BGGREEN + C_BLACK + " ", i,".",j," ", end = "", sep="")
         print(C_BGBLACK + C_WHITE)
         """
+    f.write('\n')
+    f.write('\n')
+    f.close()
     return
 
 #color 돌을 놓을 수 있는 위치 반환 //작업 끝. 테스트 필요
@@ -119,13 +128,15 @@ def check_place(color, board, x, y):
 
 #(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 버그있음
 def let_stone(color, board, x, y):
-    if not check_place(color, board, x, y):
-        print("ASD")
-        return board
+    if not check_place(color, board, x, y): return board
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
+    asd = [' ', 'W', 'B']
     board[x][y] = color
     print("Put ", x,".",y, " -> ", color, sep="")
+    f = open("Log.txt", 'a')
+    f.write("Put " + str(x) + "." + str(y) + " -> " + asd[color] + '\n')
+    f.close()
     for i in range(8):
         ddx, ddy = x, y
         cnt = 0
@@ -140,6 +151,9 @@ def let_stone(color, board, x, y):
                     dddx += dx[i]
                     dddy += dy[i]
                     board[dddx][dddy] = color
+                    f = open("Log.txt", 'a')
+                    f.write(str(dddx) + "." + str(dddy) + " -> " + asd[color] + '\n')
+                    f.close()
                     print(dddx,".",dddy, " -> ", color, sep="")
             elif board[ddx][ddy] != color: cnt += 1
     return board
@@ -157,6 +171,8 @@ def inGame():
     black_list = list() #검은색이 놓을 수 있는 경우의 수
     white_list = list() #하얀색이 놓을 수 있는 경우의 수
     board = make_base()
+    f = open("Log.txt", 'w')
+    f.close()
     while not is_end(board):
         black_list = available_list(2, board)
         if len(black_list) != 0:
