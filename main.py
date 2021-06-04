@@ -1,4 +1,5 @@
 import random
+import pygame
 
 #0 빈칸, 1 하양, 2 검정
 
@@ -36,6 +37,7 @@ def print_board(board):
         print(C_BGBLACK + C_WHITE)
     return
 
+#board 출력 //디버그용
 def print_board_debug(board):
     C_GREEN  = "\033[32m"
     C_BLACK  = "\033[30m"
@@ -45,6 +47,7 @@ def print_board_debug(board):
     f = open("Log.txt", 'a')
     
     for i in range(8):
+        """
         for j in range(8):
             if board[i][j] == 0:
                 f.write(" " + str(i) + "." + str(j) + " ")
@@ -58,20 +61,24 @@ def print_board_debug(board):
         print()
         f.write('\n')
         """
+        for j in range(8):
             if board[i][j] == 0:
+                f.write(" " + str(i) + "." + str(j) + " ")
                 print(C_BGBLACK + C_WHITE + " ", i,".",j," ", end = "", sep="")
             if board[i][j] == 1:
+                f.write(" " + str(i) + "." + str(j) + "W")
                 print(C_BGGREEN + C_WHITE + " ", i,".",j," ", end = "", sep="")
             if board[i][j] == 2:
+                f.write(" " + str(i) + "." + str(j) + "B")
                 print(C_BGGREEN + C_BLACK + " ", i,".",j," ", end = "", sep="")
         print(C_BGBLACK + C_WHITE)
-        """
+        f.write('\n')
     f.write('\n')
     f.write('\n')
     f.close()
     return
 
-#color 돌을 놓을 수 있는 위치 반환 //작업 끝. 테스트 필요
+#color 돌을 놓을 수 있는 위치 반환 //작업 끝.
 def available_list(color, board):
     if not color_check(color): return [] #유효하지 않은 색상 체크
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
@@ -91,7 +98,8 @@ def available_list(color, board):
                     elif board[x][y] == 0: #빈칸인지 체크
                         if cnt == 0: break #사이에 다른색 돌이 없으면 추가 x
                         else: #있으면 빈칸의 좌표 추가
-                            l.append([[i,j],[x, y]]) #시작 좌표, 놓는 돌의 좌표
+                            if not [x,y] in l:
+                                l.append([x, y]) #놓는 돌의 좌표
                             break
                     else: cnt += 1 #사이에 다른색 돌 개수 + 1
     return l
@@ -105,7 +113,7 @@ def get_score(color, board):
             if j == color: cnt += 1
     return cnt
 
-#(x,y)위치에 color색 돌을 놓을 수 있는지 확인 //작업 끝. 테스트 필요
+#(x,y)위치에 color색 돌을 놓을 수 있는지 확인 //작업 끝.
 def check_place(color, board, x, y):
     if not color_check(color): return False #유효한 색인지 확인
     if x >= 8 or x < 0 or y >= 8 or y < 0: return False #위치가 범위를 벗어나는지 확인
@@ -126,17 +134,12 @@ def check_place(color, board, x, y):
                 else: return True
     return False
 
-#(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝, 버그있음
+#(x, y) 위치에 color색 돌을 놓음. 놓을 수 없는 경우 놓지 않음 //작업끝
 def let_stone(color, board, x, y):
     if not check_place(color, board, x, y): return board
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
-    asd = [' ', 'W', 'B']
     board[x][y] = color
-    print("Put ", x,".",y, " -> ", color, sep="")
-    f = open("Log.txt", 'a')
-    f.write("Put " + str(x) + "." + str(y) + " -> " + asd[color] + '\n')
-    f.close()
     for i in range(8):
         ddx, ddy = x, y
         cnt = 0
@@ -151,10 +154,6 @@ def let_stone(color, board, x, y):
                     dddx += dx[i]
                     dddy += dy[i]
                     board[dddx][dddy] = color
-                    f = open("Log.txt", 'a')
-                    f.write(str(dddx) + "." + str(dddy) + " -> " + asd[color] + '\n')
-                    f.close()
-                    print(dddx,".",dddy, " -> ", color, sep="")
             elif board[ddx][ddy] != color: cnt += 1
     return board
 
@@ -166,7 +165,7 @@ def is_end(board):
     else: return False
 
 #오델로 게임 //테스트용
-def inGame():
+def inGame_Test():
     user_input = "" #사용자 입력 저장용
     black_list = list() #검은색이 놓을 수 있는 경우의 수
     white_list = list() #하얀색이 놓을 수 있는 경우의 수
@@ -177,14 +176,12 @@ def inGame():
         black_list = available_list(2, board)
         if len(black_list) != 0:
             choose = black_list[random.randint(0, len(black_list) - 1)]
-            choose = choose[1]
             board = let_stone(2, board, choose[0], choose[1])
         print_board_debug(board)
         print()
         white_list = available_list(1, board)
         if len(white_list) != 0:
             choose = white_list[random.randint(0, len(white_list) - 1)]
-            choose = choose[1]
             board = let_stone(1, board, choose[0], choose[1])
         print_board_debug(board)
         print()
@@ -195,4 +192,67 @@ def inGame():
     elif black_score < white_score: print("WHITE WIN")
     else: print("BLACK WIN")
 
-inGame()
+#오셀로 판 그리기 -> pygame
+def draw_base(screen):
+    COLOR1 = (139,79,18)
+    COLOR2 = (240,183,127)
+    #COLOR2 = (246,198,151)
+    pygame.draw.rect(screen, COLOR2, [0, 0, 512, 512])
+    for i in range(8):
+        if i % 2 == 0:
+            for j in range(1, 8, 2):
+                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64])
+        else:
+            for j in range(0, 8, 2):
+                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64])
+
+#돌 그리기 -> pygame
+def draw_checker(screen, board):
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    for i in range(8):
+        for j in range(8):
+            if board[i][j] == 1:
+                pygame.draw.circle(screen, WHITE, [32 + i * 64, 32 + j * 64], 25)
+            elif board[i][j] == 2:
+                pygame.draw.circle(screen, BLACK, [32 + i * 64, 32 + j * 64], 25)
+
+
+#돌을 놓을 수 있는 위치 표시 -> pygame
+def draw_let_place(screen, place_list):
+    COLOR = (127,240,142)
+    for i in place_list:
+        pygame.draw.circle(screen, COLOR, [32 + i[0] * 64, 32 + i[1] * 64], 4)
+
+#마우스 클릭 위치를 격자의 몇번째 칸인지 변환 -> pygame
+def click_position(x, y):
+    return x // 64, y // 64
+
+#inGame_Test()
+board = make_base()
+pygame.init()
+MainScreen = pygame.display.set_mode([512, 512])
+pygame.display.set_caption("오델로")
+turn = 1
+while True:
+    MainScreen.fill((255,255,255))
+    draw_base(MainScreen)
+    draw_checker(MainScreen, board)
+    place = available_list(1, board)
+    draw_let_place(MainScreen, place)
+    event = pygame.event.poll()
+    if event.type == pygame.QUIT:
+        break
+    elif event.type == pygame.MOUSEBUTTONDOWN:
+        if event.button == 1:
+            if turn == 1:
+                x, y = click_position(event.pos[0], event.pos[1])
+                board = let_stone(1, board, x, y)
+                turn = 2
+    if turn == 2:
+        place = available_list(2, board)
+        if len(place) != 0:
+            choose = place[random.randint(0, len(place) - 1)]
+            board = let_stone(2, board, choose[0], choose[1])
+            turn = 1
+    pygame.display.flip()
