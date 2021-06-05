@@ -1,5 +1,6 @@
 import random
 import pygame
+import sys
 
 #0 빈칸, 1 하양, 2 검정
 
@@ -217,7 +218,6 @@ def draw_checker(screen, board):
             elif board[i][j] == 2:
                 pygame.draw.circle(screen, BLACK, [32 + i * 64, 32 + j * 64], 25)
 
-
 #돌을 놓을 수 있는 위치 표시 -> pygame
 def draw_let_place(screen, place_list):
     COLOR = (127,240,142)
@@ -228,31 +228,89 @@ def draw_let_place(screen, place_list):
 def click_position(x, y):
     return x // 64, y // 64
 
-#inGame_Test()
-board = make_base()
-pygame.init()
-MainScreen = pygame.display.set_mode([512, 512])
-pygame.display.set_caption("오델로")
-turn = 1
-while True:
-    MainScreen.fill((255,255,255))
-    draw_base(MainScreen)
-    draw_checker(MainScreen, board)
-    place = available_list(1, board)
-    draw_let_place(MainScreen, place)
-    event = pygame.event.poll()
-    if event.type == pygame.QUIT:
-        break
-    elif event.type == pygame.MOUSEBUTTONDOWN:
-        if event.button == 1:
-            if turn == 1:
-                x, y = click_position(event.pos[0], event.pos[1])
-                board = let_stone(1, board, x, y)
-                turn = 2
-    if turn == 2:
-        place = available_list(2, board)
+#검은돌, 흰돌 선택 -> pygame
+def select_player_turn(screen):
+    while True:
+        screen.fill((255,255,255))
+        draw_base(screen)
+        event = pygame.event.poll()
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                pass
+        pygame.display.flip()
+
+#승자 표시 -> pygame
+def draw_winner(screen, board):
+    white_score = get_score(1, board)
+    black_score = get_score(2, board)
+    if white_score == black_score:
+        print("DRAW")
+    elif white_score > black_score:
+        print("WHITE WIN")
+    else:
+        print("BLACK WIN")
+
+#플레이어 차례 -> pygame
+def player_turn(screen, board, color):
+    place = available_list(color, board)
+    while True:
+        #기본적인거 그리는 부분
+        screen.fill((255,255,255))
+        draw_base(screen)
+        draw_checker(screen, board)
+        draw_let_place(screen, place)
+
+        event = pygame.event.poll()
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN: #마우스 클릭했을때
+            if event.button == 1:
+                x, y = click_position(event.pos[0], event.pos[1]) #어느칸 클릭했는지 확인
+                if [x, y] in place: #돌을 놓을 수 있는 위치 확인
+                    board = let_stone(1, board, x, y)  #돌 놓고 반복문 탈출
+                    break
+                elif len(place) == 0: #돌을 놓을 수 없다면 반복문 탈출
+                    break
+        pygame.display.flip()
+    return board
+
+#ai 차례 -> pygame
+def ai_turn(screen, board, color):
+    place = available_list(color, board)
+    while True:
+        #기본적인거 그리는 부분
+        screen.fill((255,255,255))
+        draw_base(screen)
+        draw_checker(screen, board)
+
+        event = pygame.event.poll()
+        if event.type == pygame.QUIT:
+            sys.exit()
         if len(place) != 0:
-            choose = place[random.randint(0, len(place) - 1)]
-            board = let_stone(2, board, choose[0], choose[1])
-            turn = 1
-    pygame.display.flip()
+            choose = place[random.randint(0, len(place) - 1)] #돌을 놓을 수 있는 위치 중에서 무작위로 1개 선택
+            board = let_stone(2, board, choose[0], choose[1]) #돌 놓음
+            break
+        else: #돌을 놓을 수 없다면 반복문 탈출
+            break
+        pygame.display.flip()
+    return board
+
+def inGame():
+    board = make_base()
+    pygame.init()
+    MainScreen = pygame.display.set_mode([512, 512])
+    pygame.display.set_caption("오델로")
+    player_color = 1
+    ai_color = 2
+    turn = 1
+    while not is_end(board):
+        if turn == player_color:
+            board = player_turn(MainScreen, board, player_color)
+            turn = ai_color
+        else:
+            board = ai_turn(MainScreen, board, ai_color)
+            turn = player_color
+
+inGame()
