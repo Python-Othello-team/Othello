@@ -26,65 +26,6 @@ def make_base():
     board[4][3] = 2
     return board
 
-#board 출력 //현 상태에서는 작업 끝. 추후 수정이 필요하면 수정 예정
-def print_board(board):
-    C_GREEN  = "\033[32m"
-    C_BLACK  = "\033[30m"
-    C_WHITE  = "\033[37m"
-    C_BGGREEN  = "\033[42m"
-    C_BGBLACK  = "\033[40m"
-    for i in board:
-        for j in i:
-            if j == 0:
-                print(C_BGGREEN + C_BLACK + " . ", end = "")
-            if j == 1:
-                print(C_BGGREEN + C_WHITE + " ● ", end = "")
-            if j == 2:
-                print(C_BGGREEN + C_BLACK + " ● ", end = "")
-        print(C_BGBLACK + C_WHITE)
-    return
-
-#board 출력 //디버그용
-def print_board_debug(board):
-    C_GREEN  = "\033[32m"
-    C_BLACK  = "\033[30m"
-    C_WHITE  = "\033[37m"
-    C_BGGREEN  = "\033[42m"
-    C_BGBLACK  = "\033[40m"
-    f = open("Log.txt", 'a')
-    
-    for i in range(8):
-        """
-        for j in range(8):
-            if board[i][j] == 0:
-                f.write(" " + str(i) + "." + str(j) + " ")
-                print(" ", i,".",j," ", end = "", sep="")
-            if board[i][j] == 1:
-                f.write(" " + str(i) + "." + str(j) + "W")
-                print(" ", i,".",j,"W", end = "", sep="")
-            if board[i][j] == 2:
-                f.write(" " + str(i) + "." + str(j) + "B")
-                print(" ", i,".",j,"B", end = "", sep="")
-        print()
-        f.write('\n')
-        """
-        for j in range(8):
-            if board[i][j] == 0:
-                f.write(" " + str(i) + "." + str(j) + " ")
-                print(C_BGBLACK + C_WHITE + " ", i,".",j," ", end = "", sep="")
-            if board[i][j] == 1:
-                f.write(" " + str(i) + "." + str(j) + "W")
-                print(C_BGGREEN + C_WHITE + " ", i,".",j," ", end = "", sep="")
-            if board[i][j] == 2:
-                f.write(" " + str(i) + "." + str(j) + "B")
-                print(C_BGGREEN + C_BLACK + " ", i,".",j," ", end = "", sep="")
-        print(C_BGBLACK + C_WHITE)
-        f.write('\n')
-    f.write('\n')
-    f.write('\n')
-    f.close()
-    return
-
 #color 돌을 놓을 수 있는 위치 반환 //작업 끝.
 def available_list(color, board):
     if not color_check(color): return [] #유효하지 않은 색상 체크
@@ -164,40 +105,12 @@ def let_stone(color, board, x, y):
             elif board[ddx][ddy] != color: cnt += 1
     return board
 
-#게임 종료 확인 //작업끝, 테스트 필요
+#게임 종료 확인 //작업끝
 def is_end(board):
     black_list = available_list(1, board)
     white_list = available_list(2, board)
     if len(black_list) == 0 and len(white_list) == 0: return True
     else: return False
-
-#오델로 게임 //테스트용
-def inGame_Test():
-    user_input = "" #사용자 입력 저장용
-    black_list = list() #검은색이 놓을 수 있는 경우의 수
-    white_list = list() #하얀색이 놓을 수 있는 경우의 수
-    board = make_base()
-    f = open("Log.txt", 'w')
-    f.close()
-    while not is_end(board):
-        black_list = available_list(2, board)
-        if len(black_list) != 0:
-            choose = black_list[random.randint(0, len(black_list) - 1)]
-            board = let_stone(2, board, choose[0], choose[1])
-        print_board_debug(board)
-        print()
-        white_list = available_list(1, board)
-        if len(white_list) != 0:
-            choose = white_list[random.randint(0, len(white_list) - 1)]
-            board = let_stone(1, board, choose[0], choose[1])
-        print_board_debug(board)
-        print()
-    black_score = get_score(2, board)
-    white_score = get_score(1, board)
-    print(black_score, white_score)
-    if black_score == white_score: print("DRAW!")
-    elif black_score < white_score: print("WHITE WIN")
-    else: print("BLACK WIN")
 
 #오셀로 판 그리기 -> pygame
 def draw_base(screen):
