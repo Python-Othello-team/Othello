@@ -199,6 +199,29 @@ def inGame_Test():
     elif black_score < white_score: print("WHITE WIN")
     else: print("BLACK WIN")
 
+#Log.txt 초기화
+def reset_log():
+    f = open("Log.txt", 'w')
+    f.close()
+    return
+
+#Log.txt에 현재 턴 저장
+def save_turn(board):
+    f = open("Log.txt", 'a')
+    for i in range(8):
+        for j in range(8):
+            if board[i][j] == 0:
+                f.write(" " + str(i) + "." + str(j) + " ")
+            if board[i][j] == 1:
+                f.write(" " + str(i) + "." + str(j) + "W")
+            if board[i][j] == 2:
+                f.write(" " + str(i) + "." + str(j) + "B")
+        f.write('\n')
+    f.write('\n')
+    f.write('\n')
+    f.close()
+    return
+
 #오셀로 판 그리기 -> pygame
 def draw_base(screen):
     COLOR1 = (139,79,18)
@@ -347,6 +370,8 @@ def inGame():
     player_color = select_player_turn(MainScreen)
     ai_color = other_color(player_color)
     turn = 1
+    reset_log()
+    save_turn(board)
     while not is_end(board):
         if turn == player_color:
             board = player_turn(MainScreen, board, player_color)
@@ -354,6 +379,7 @@ def inGame():
         else:
             board = ai_turn(MainScreen, board, ai_color)
             turn = player_color
+        save_turn(board)
     draw_winner(MainScreen, board)
 
 inGame()
