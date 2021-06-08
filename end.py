@@ -1,3 +1,5 @@
+#김예준, 김관우, 김윤재 팀
+
 import random
 import pygame
 import sys
@@ -20,6 +22,7 @@ def other_color(color):
 #board 생성 //작업 끝
 def make_base():
     board = [[0 for _ in range(8)] for _ in range(8)]
+    #초기 돌 4개 설정
     board[3][3] = 1
     board[4][4] = 1
     board[3][4] = 2
@@ -40,7 +43,7 @@ def available_list(color, board):
                 cnt = 0
                 while True:
                     if x + dx[k] >= 8 or x + dx[k] < 0 or y + dy[k] >= 8 or y + dy[k] < 0: break #범위 밖을 나가는지 체크
-                    x += dx[k]
+                    x += dx[k] #좌표 이동
                     y += dy[k]
                     if board[x][y] == color: break #같은색인지 체크
                     elif board[x][y] == 0: #빈칸인지 체크
@@ -54,7 +57,7 @@ def available_list(color, board):
 
 #color 색의 돌 개수 반환 //작업 끝
 def get_score(color, board):
-    if not color_check(color): return 0
+    if not color_check(color): return 0 #유효하지 않은 색은 0 반환
     cnt = 0
     for i in board:
         for j in i:
@@ -69,16 +72,16 @@ def check_place(color, board, x, y):
     dx = [0, 0, -1, 1, -1, -1, 1, 1]
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
     for i in range(8):
-        ddx, ddy = x, y
+        ddx, ddy = x, y #ddx, ddy => 현재 탐색중인 좌표
         cnt = 0
         while True:
             if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
-            ddx += dx[i]
+            ddx += dx[i] #좌표 이동
             ddy += dy[i]
-            if board[ddx][ddy] == 0: break
-            elif board[ddx][ddy] != color: cnt += 1
+            if board[ddx][ddy] == 0: break #빈칸이면 종료
+            elif board[ddx][ddy] != color: cnt += 1 #시작 위치 기준으로 다른 색의 돌이면 cnt + 1
             else:
-                if cnt == 0: break
+                if cnt == 0: break #바로 옆칸이라면 (사이에 바꿀 다른색 돌이 없다면 종료)
                 else: return True
     return False
 
@@ -89,7 +92,7 @@ def let_stone(color, board, x, y):
     dy = [-1, 1, 0, 0, -1, 1, -1, 1]
     board[x][y] = color
     for i in range(8):
-        ddx, ddy = x, y
+        ddx, ddy = x, y #ddx, ddy => 현재 탐색중인 위치
         cnt = 0
         while True:
             if ddx + dx[i] >= 8 or ddx + dx[i] < 0 or ddy + dy[i] >= 8 or ddy + dy[i] < 0: break #범위를 벗어나는지 확인
@@ -97,7 +100,7 @@ def let_stone(color, board, x, y):
             ddy += dy[i]
             if board[ddx][ddy] == 0: break
             elif board[ddx][ddy] == color:
-                dddx, dddy = x, y
+                dddx, dddy = x, y #dddx, dddy => 탐색중인 바꿀 돌
                 for _ in range(cnt):
                     dddx += dx[i]
                     dddy += dy[i]
@@ -109,22 +112,21 @@ def let_stone(color, board, x, y):
 def is_end(board):
     black_list = available_list(1, board)
     white_list = available_list(2, board)
-    if len(black_list) == 0 and len(white_list) == 0: return True
+    if len(black_list) == 0 and len(white_list) == 0: return True #검은돌과 흰 돌 모두 놓을 위치가 없으면 게임 종료
     else: return False
 
 #오셀로 판 그리기 -> pygame
 def draw_base(screen):
-    COLOR1 = (139,79,18)
-    COLOR2 = (240,183,127)
-    #COLOR2 = (246,198,151)
+    COLOR1 = (139,79,18) #갈색
+    COLOR2 = (240,183,127) #살색
     pygame.draw.rect(screen, COLOR2, [0, 0, 512, 512])
     for i in range(8):
         if i % 2 == 0:
             for j in range(1, 8, 2):
-                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64])
+                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64]) #짝수번째 줄 그리기
         else:
             for j in range(0, 8, 2):
-                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64])
+                pygame.draw.rect(screen, COLOR1, [i * 64, j * 64, 64, 64]) #홀수번째 줄 그리기
 
 #돌 그리기 -> pygame
 def draw_checker(screen, board):
@@ -133,7 +135,7 @@ def draw_checker(screen, board):
     for i in range(8):
         for j in range(8):
             if board[i][j] == 1:
-                pygame.draw.circle(screen, WHITE, [32 + i * 64, 32 + j * 64], 25)
+                pygame.draw.circle(screen, WHITE, [32 + i * 64, 32 + j * 64], 25) #[원의 중심의 x좌표, 원의 중심의 y 좌표] , 원의 크기
             elif board[i][j] == 2:
                 pygame.draw.circle(screen, BLACK, [32 + i * 64, 32 + j * 64], 25)
 
@@ -150,6 +152,7 @@ def click_position(x, y):
 #검은돌, 흰돌 선택 -> pygame
 def select_player_turn(screen):
     while True:
+        #기본적인거 그리는 부분
         screen.fill((255,255,255))
         draw_base(screen)
         event = pygame.event.poll()
@@ -167,9 +170,9 @@ def select_player_turn(screen):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 x, y = event.pos[0], event.pos[1] #마우스 클릭 좌표 받기
-                if 50 <= x <= 200 and 300 <= y <= 350:
+                if 50 <= x <= 200 and 300 <= y <= 350: #클릭한 위치가 검은돌 버튼 내부인지 확인
                     return 2
-                elif 316 <= x <= 456 and 300 <= y <= 350:
+                elif 316 <= x <= 456 and 300 <= y <= 350: #클릭한 위치가 흰돌 버튼 내부인지 확인
                     return 1
         pygame.display.flip() 
 
@@ -285,14 +288,14 @@ def inGame():
     turn = 1
     reset_log()
     save_turn(board)
-    while not is_end(board):
-        if turn == player_color:
-            board = player_turn(MainScreen, board, player_color)
-            turn = ai_color
+    while not is_end(board): #게임 종료까지 무한반복
+        if turn == player_color: #현재 턴이 플레이어 턴인지 확인
+            board = player_turn(MainScreen, board, player_color) #플레이어 턴 진행
+            turn = ai_color #현재 턴을 ai 턴으로 변경
         else:
-            board = ai_turn(MainScreen, board, ai_color)
-            turn = player_color
-        save_turn(board)
-    draw_winner(MainScreen, board)
+            board = ai_turn(MainScreen, board, ai_color) #ai턴 진행
+            turn = player_color #현재 턴을 플레이어 턴으로 변경
+        save_turn(board) #로그에 현재 내용 저장
+    draw_winner(MainScreen, board) #게임이 끝나서 반복문 빠져나오면 이긴 사람 표시
 
 inGame()
