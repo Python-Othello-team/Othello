@@ -135,7 +135,8 @@ def draw_checker(screen, board):
     for i in range(8):
         for j in range(8):
             if board[i][j] == 1:
-                pygame.draw.circle(screen, WHITE, [32 + i * 64, 32 + j * 64], 25) #[원의 중심의 x좌표, 원의 중심의 y 좌표] , 원의 크기
+                pygame.draw.circle(screen, WHITE, [32 + i * 64, 32 + j * 64], 25)
+                #[원의 중심의 x좌표, 원의 중심의 y 좌표] , 원의 크기
             elif board[i][j] == 2:
                 pygame.draw.circle(screen, BLACK, [32 + i * 64, 32 + j * 64], 25)
 
@@ -176,7 +177,7 @@ def select_player_turn(screen):
                     return 1
         pygame.display.flip() 
 
-#승자 표시 -> pygame
+#돌의 개수를 비교해 더 높은 플레이어 표시 -> pygame
 def draw_winner(screen, board):
     white_score = get_score(1, board) #흰돌 개수
     black_score = get_score(2, board) #검은돌 개수
@@ -210,7 +211,7 @@ def draw_winner(screen, board):
             if event.button == 1:
                 sys.exit()
 
-#플레이어 차례 -> pygame
+#플레이어 차례: 클릭한 위치에 돌 놓기, 불가능한 위치라면 다시 입력받기 -> pygame
 def player_turn(screen, board, color):
     place = available_list(color, board)
     while True:
